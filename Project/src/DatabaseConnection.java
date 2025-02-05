@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DatabaseConnection {
-    private String dbUrl = "jdbc:mysql://localhost:3306/dbaulestudio";
+    private String dbUrl = "jdbc:mysql://localhost:3328/ing_soft";
     private String dbUser = "root";
     private String dbPassword = "";
     Connection conn;
