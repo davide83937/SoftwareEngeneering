@@ -1,10 +1,16 @@
-use ing_soft;
+-- phpMyAdmin SQL Dump
+-- version 4.7.0
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Creato il: Feb 05, 2025 alle 10:52
+-- Versione del server: 5.7.17
+-- Versione PHP: 7.1.3
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
-
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -245,7 +251,7 @@ CREATE TABLE `studente` (
 
 CREATE TABLE `tavolo` (
   `id` int(11) NOT NULL,
-  `numero posti` int(11) NOT NULL,
+  `numeroposti` int(11) NOT NULL,
   `fkaula` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
@@ -314,7 +320,12 @@ ALTER TABLE `aula`
 -- AUTO_INCREMENT per la tabella `corsidistudio`
 --
 ALTER TABLE `corsidistudio`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;COMMIT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
+--
+-- AUTO_INCREMENT per la tabella `tavolo`
+--
+ALTER TABLE `tavolo`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

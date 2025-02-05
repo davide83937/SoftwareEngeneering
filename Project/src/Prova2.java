@@ -9,4 +9,7 @@ public class Prova2 {
     public JPanel getMainPanel() {
         return panel1;
     }
+    private void nuovoTavoloButton(java.awt.event.ActionEvent evt) {
+        System.out.println("ciao");
+    }
 }
