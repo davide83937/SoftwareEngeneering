@@ -12,7 +12,6 @@ public class Sistema {
 
     private Sistema(){
         this.listaAule = new LinkedList<>();
-
     }
 
 
@@ -36,7 +35,7 @@ public class Sistema {
                            Tavolo tavolo = t;
                            for(Integer p: tavolo.getLista_postazioni()){
                                if (p == id_tavolo){
-                                   this.prenotazioneCorrente = new Prenotazione(aula.getId(), tavolo.getId(), p, materia, data_ora_inizio, data_ora_fine);
+                                   this.prenotazioneCorrente = new Prenotazione(123456789, data_ora_inizio, data_ora_fine, materia, aula.getId(), tavolo.getId(), p);
                                }
                            }
                        }
@@ -44,16 +43,12 @@ public class Sistema {
                }
 
             }
-
-
             }
             }
 
         }
 
-    }
 
-}
 
 
 

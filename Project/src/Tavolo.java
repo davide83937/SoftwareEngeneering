@@ -13,7 +13,7 @@ public class Tavolo {
         this.id = id;
         this.numeroposti = numeroposti;
         this.codiceaula = codiceaula;
-        lista_postazioni = new LinkedList<>()
+        lista_postazioni = new LinkedList<>();
     }
 
 
