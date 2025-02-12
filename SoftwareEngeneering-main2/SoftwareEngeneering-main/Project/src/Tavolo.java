@@ -7,7 +7,7 @@ public class Tavolo {
     private String nome_aula;// ID del tavolo// Numero di posti disponibili sul tavolo
     private int codiceaula;
     private int n_postazioni;
-    private LinkedList<Integer> lista_postazioni;
+    private LinkedList<Postazione> lista_postazioni;
 
     // Costruttore
     public Tavolo(int id, int codiceaula, int n_postazioni) {
@@ -17,12 +17,11 @@ public class Tavolo {
         lista_postazioni = new LinkedList<>();
     }
 
-
-    public LinkedList<Integer> getLista_postazioni() {
+    public LinkedList<Postazione> getLista_postazioni() {
         return lista_postazioni;
     }
 
-    public void setLista_postazioni(LinkedList<Integer> lista_postazioni) {
+    public void setLista_postazioni(LinkedList<Postazione> lista_postazioni) {
         this.lista_postazioni = lista_postazioni;
     }
 

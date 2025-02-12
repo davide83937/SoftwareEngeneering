@@ -6,8 +6,11 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
-        // SwingUtilities.invokeLater(() -> new Prova()); -> se in futuro vogliamo mettere interfaccia grafica
+    public static void main(String[] args) throws SQLException {
+
+        Sistema sistema = Sistema.getInstance();
+        sistema.load();
+
         Scanner scanner = new Scanner(System.in);
         DatabaseConnection dbConnection = null;
         Studente sessioneU=null;
@@ -18,10 +21,6 @@ public class Main {
         try {
             // Instanzia l'oggetto DatabaseConnection
             dbConnection = new DatabaseConnection();
-            //prossimi passi
-            //caricamento liste
-            //aule
-            //tavoli
 
             boolean exit = false;
             boolean loggato = false;
@@ -87,9 +86,7 @@ public class Main {
                             nascita = (String) primaRiga.get("Email");
                             // Matricola potrebbe essere Integer, Long o un altro tipo numerico
                             matricola = ((Number) primaRiga.get("Matricola")).intValue();
-
                             corsoDiStudio = (String) primaRiga.get("corsodistudio");
-
                             // Creazione dell'oggetto Studente con i dati recuperati
                             sessioneU = new Studente(nome, cognome, nascita, codiceFiscale, email, matricola, corsoDiStudio);
 
@@ -167,8 +164,6 @@ public class Main {
                             }
                             break;
                         case 3:
-
-
                             // Chiedi l'ID dell'aula
                             System.out.print("Inserisci id dell'aula: ");
                             id_aula = Integer.parseInt(scanner.nextLine());

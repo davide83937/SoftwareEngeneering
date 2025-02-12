@@ -15,7 +15,16 @@ public class Aula {
         this.id = id;
         this.edificio = edificio;
         this.nome = nome;
+        this.numerotavoli = 0;
+        lista_tavoli = new LinkedList<>();
+    }
 
+    public Aula(int id, int edificio, String nome, int numerotavoli, int numeropostazioni) {
+        this.id = id;
+        this.edificio = edificio;
+        this.nome = nome;
+        this.numerotavoli = numerotavoli;
+        this.numeropostazioni = numeropostazioni;
         lista_tavoli = new LinkedList<>();
     }
 
