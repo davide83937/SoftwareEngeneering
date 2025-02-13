@@ -1,21 +1,23 @@
 import javax.swing.*;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.sql.Time;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws SQLException {
 
         Sistema sistema = Sistema.getInstance();
-        sistema.load();
+        //sistema.load();
 
         Scanner scanner = new Scanner(System.in);
         DatabaseConnection dbConnection = null;
         Studente sessioneU=null;
         Amministratore sessioneA = null; //per ora classe amministratore non utilizzata da implementare
-        String nome,cognome,codiceFiscale,email,nascita,corsoDiStudio,query,idaula;
+        String nome,cognome,codiceFiscale,email,nascita,corsoDiStudio,query;
         int numeroposti, conferma, id_tavolo;
         int matricola, scelta;
         try {
@@ -47,14 +49,12 @@ public class Main {
                         if (amministratore != null && !amministratore.isEmpty()) {
                             Map<String, Object> primaRiga = amministratore.get(0);
 
-                            // Estrarre i valori correttamente
                             nome = (String) primaRiga.get("Nome");
                             cognome = (String) primaRiga.get("Cognome");
                             codiceFiscale = (String) primaRiga.get("Codicefiscale");
                             email = (String) primaRiga.get("Email");
                             nascita = (String) primaRiga.get("Email");
 
-                            // Creazione dell'oggetto Studente con i dati recuperati
                             sessioneA = new Amministratore(nome, cognome, nascita, codiceFiscale, email);
 
                             System.out.println("Login effettuato con successo per: " + sessioneA.getNome() + " " + sessioneA.getCognome());
@@ -89,8 +89,9 @@ public class Main {
                             corsoDiStudio = (String) primaRiga.get("corsodistudio");
                             // Creazione dell'oggetto Studente con i dati recuperati
                             sessioneU = new Studente(nome, cognome, nascita, codiceFiscale, email, matricola, corsoDiStudio);
-
                             System.out.println("Login effettuato con successo per: " + sessioneU.getNome() + " " + sessioneU.getCognome());
+                            sistema.load();
+                            sistema.load_disponibilita();
                             loggato = true;
                         } else {
                             System.out.println("Nome o password errati.");
@@ -110,7 +111,7 @@ public class Main {
             while (!exit) {
                 if (sessioneA != null) {
                     System.out.println("1. test query");
-                    System.out.println("2. Inserici Aula");
+                    System.out.println("2. Inserisci Aula");
                     System.out.println("3. Inserisci Tavolo");
                     System.out.println("4. Esci");
                     System.out.print("Seleziona un'opzione: ");
@@ -158,7 +159,7 @@ public class Main {
                             System.out.println("2) No");
                             conferma = Integer.parseInt(scanner.nextLine());
                             if(conferma == 1){
-                                Sistema.getInstance().terminaInserimentoAula(dbConnection);
+                                sistema.terminaInserimentoAula(dbConnection);
                             }else {
                                 break;
                             }
@@ -172,16 +173,14 @@ public class Main {
                             id_tavolo = Integer.parseInt(scanner.nextLine());
                             System.out.println("Inserisci il numero di posti");
                             numeroposti = scanner.nextInt();
-                            Sistema.getInstance().inserimentoDatiTavolo(id_tavolo, id_aula, numeroposti);
+                            sistema.inserimentoDatiTavolo(id_tavolo, id_aula, numeroposti);
 
                             System.out.println("Confermi l'inserimento?");
                             System.out.println("1) Si");
                             System.out.println("2) No");
                             conferma = scanner.nextInt();
                             if(conferma == 1){
-                                Sistema.getInstance().terminaInserimentoTavolo(dbConnection);
-                            }else {
-                                break;
+                                sistema.terminaInserimentoTavolo(dbConnection);
                             }
                             break;
                             
@@ -202,7 +201,96 @@ public class Main {
                     scanner.nextLine();  // Consumiamo la newline lasciata da nextInt()
                     switch (scelta) {
                         case 1:
-                            //fare
+                            System.out.println("Seleziona una data disponibile, scrivila con lo stesso formato di quelle che vedi");
+                            LinkedList<LocalDate> date = new LinkedList<>();
+                            for(Disponibilita d: Sistema.getInstance().disponibilita){
+                                if (!d.isOccupato1() || !d.isOccupato2()){
+                                    date.add(d.getData_disponibile());
+                                }
+                            }
+                            // Creiamo un HashSet per rimuovere i duplicati
+                            Set<LocalDate> dSenzaDuplicati = new HashSet<>(date);
+                            // Convertiamo di nuovo in una lista
+                            LinkedList<LocalDate> dateSenzaDuplicati = new LinkedList<>(dSenzaDuplicati);
+                            for (LocalDate ld: dateSenzaDuplicati){
+                                System.out.println(ld);
+                            }
+                            String data_scelta = scanner.nextLine();
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                            LocalDate data = null;
+                            try {
+                                // Converti la stringa in un oggetto LocalDate
+                                data = LocalDate.parse(data_scelta, formatter);
+
+                                // Stampa la data per conferma
+                                System.out.println("Data inserita: " + data);
+                            } catch (DateTimeParseException e) {
+                                System.out.println("Formato data non valido. Assicurati che la data sia nel formato yyyy-MM-dd.");
+                            }
+                            LinkedList<Integer> id_aule_disponibili = new LinkedList<>();
+                            System.out.println("Seleziona un aula, scrivi il codice indicato");
+                            for(Disponibilita d: sistema.disponibilita){
+                                if(d.getData_disponibile().equals(data) && (!d.isOccupato1()||!d.isOccupato2())){
+                                    id_aule_disponibili.add(d.getId_aula());
+                                }
+                            }
+                            Set<Integer> id_senza_duplicati = new HashSet<>(id_aule_disponibili);
+                            // Convertiamo di nuovo in una lista
+                            LinkedList<Integer> idSenzaDuplicati = new LinkedList<>(id_senza_duplicati);
+
+                            for (Integer idaula: idSenzaDuplicati){
+                                for(Aula a: Sistema.getInstance().getListaAule()){
+                                    if(idaula == a.getId()){
+                                        System.out.println("Aula -> "+a.getNome()+", Codice -> "+idaula+", Edificio -> "+a.getEdificio());
+                                    }
+                                }
+                            }
+
+                            int aula_scelta = scanner.nextInt();
+                            for(Disponibilita d: sistema.disponibilita){
+                                if(d.getId_aula() == aula_scelta && d.getData_disponibile().equals(data)){
+                                    System.out.println("Postazione -> "+d.getId_postazione()+", Tavolo "+d.getId_tavolo());
+                                    if(!d.isOccupato1()){
+                                        System.out.println("Disponibile dalle "+ d.getOrario_inizio_1()+" alle "+d.getOrario_fine_1());
+                                    }
+                                    if(!d.isOccupato2()){
+                                        System.out.println("Disponibile dalle "+ d.getOrario_inizio_2()+ " alle "+ d.getOrario_fine_2());
+                                    }
+                                }
+                            }
+
+                            System.out.println("Seleziona il tavolo, inserisci il codice");
+                            int tavolo_scelto = scanner.nextInt();
+                            System.out.println("Seleziona il posto, inserisci il codice");
+                            int postazione_scelta = scanner.nextInt();
+                            System.out.println("Selezione la fascia oraria, digita 1 per la mattina, 2 per il pomeriggio");
+                            int fascia_scelta = scanner.nextInt();
+                            Time ora_di_inizio = null;
+                            Time ora_di_fine = null;
+
+
+                            for(Disponibilita d: sistema.disponibilita){
+                                if(d.getId_tavolo() == tavolo_scelto && d.getId_postazione() == postazione_scelta){
+                                    if(fascia_scelta == 1){
+                                        ora_di_inizio = d.getOrario_inizio_1();
+                                        ora_di_fine = d.getOrario_fine_1();
+                                    }
+                                    if(fascia_scelta == 2){
+                                        ora_di_inizio = d.getOrario_inizio_2();
+                                        ora_di_fine = d.getOrario_fine_2();
+                                    }
+                                }
+                            }
+
+                            sistema.inserisciDatiPrenotazione(sessioneU.getMatricola(),aula_scelta, tavolo_scelto, postazione_scelta, 1, data, ora_di_inizio, ora_di_fine);
+
+                            System.out.println("Confermi la prenotazione?");
+                            System.out.println("1) Si");
+                            System.out.println("2) No");
+                            conferma = scanner.nextInt();
+                            if(conferma == 1){
+                                sistema.terminaPrenotazione(dbConnection, fascia_scelta);
+                            }
                             break;
                         case 2:
                             // Esci dal ciclo
@@ -212,8 +300,6 @@ public class Main {
                             System.out.println("Opzione non valida!");
                     }
                 }
-
-
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);

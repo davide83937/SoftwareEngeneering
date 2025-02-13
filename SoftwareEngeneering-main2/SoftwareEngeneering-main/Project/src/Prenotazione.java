@@ -1,20 +1,26 @@
+import java.sql.Time;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class Prenotazione {
+    private int id_stud_prenotato;
     private int codicePrenotazione;
-    private LocalDateTime data_inizio;
-    private LocalDateTime data_fine;
+    private LocalDate data;
+    private Time orario_inizio;
+    private Time orario_fine;
     private int materia;
     private int id_aula;
     private int id_tavolo;
     private int id_postazione;
 
     // Costruttore
-    public Prenotazione(int codicePrenotazione, LocalDateTime data_inizio, LocalDateTime data_fine,
+    public Prenotazione(int id_stud_prenotato, int codicePrenotazione, LocalDate data, Time orario_inizio, Time orario_fine,
                         int materia, int id_aula, int id_tavolo, int id_postazione) {
+        this.id_stud_prenotato = id_stud_prenotato;
         this.codicePrenotazione = codicePrenotazione;
-        this.data_inizio = data_inizio;
-        this.data_fine = data_fine;
+        this.data = data;
+        this.orario_inizio = orario_inizio;
+        this.orario_fine = orario_fine;
         this.materia = materia;
         this.id_aula = id_aula;
         this.id_tavolo = id_tavolo;
@@ -22,6 +28,12 @@ public class Prenotazione {
     }
 
     // Getter e Setter
+
+
+    public int getId_stud_prenotato() { return id_stud_prenotato; }
+
+    public void setId_stud_prenotato(int id_stud_prenotato) { this.id_stud_prenotato = id_stud_prenotato; }
+
     public int getCodicePrenotazione() {
         return codicePrenotazione;
     }
@@ -30,20 +42,28 @@ public class Prenotazione {
         this.codicePrenotazione = codicePrenotazione;
     }
 
-    public LocalDateTime getData_inizio() {
-        return data_inizio;
+    public LocalDate getData() {
+        return data;
     }
 
-    public void setData_inizio(LocalDateTime data_inizio) {
-        this.data_inizio = data_inizio;
+    public Time getOrario_inizio() {
+        return orario_inizio;
     }
 
-    public LocalDateTime getData_fine() {
-        return data_fine;
+    public Time getOrario_fine() {
+        return orario_fine;
     }
 
-    public void setData_fine(LocalDateTime data_fine) {
-        this.data_fine = data_fine;
+    public void setData(LocalDate data) {
+        this.data = data;
+    }
+
+    public void setOrario_inizio(Time orario_inizio) {
+        this.orario_inizio = orario_inizio;
+    }
+
+    public void setOrario_fine(Time orario_fine) {
+        this.orario_fine = orario_fine;
     }
 
     public int getMateria() {
@@ -78,14 +98,16 @@ public class Prenotazione {
         this.id_postazione = id_postazione;
     }
 
-    // Metodo toString
+
     @Override
     public String toString() {
         return "Prenotazione{" +
-                "codicePrenotazione='" + codicePrenotazione + '\'' +
-                ", data_inizio=" + data_inizio +
-                ", data_fine=" + data_fine +
-                ", materia='" + materia + '\'' +
+                "id_stud_prenotato=" + id_stud_prenotato +
+                ", codicePrenotazione=" + codicePrenotazione +
+                ", data=" + data +
+                ", orario_inizio=" + orario_inizio +
+                ", orario_fine=" + orario_fine +
+                ", materia=" + materia +
                 ", id_aula=" + id_aula +
                 ", id_tavolo=" + id_tavolo +
                 ", id_postazione=" + id_postazione +
