@@ -251,6 +251,7 @@ public class Main {
                                 }
                             }*/
 
+                            System.out.println("Inserisci un aula");
                             int aula_scelta = scanner.nextInt();
                             /*for(Disponibilita d: sistema.disponibilita){
                                 if(d.getId_aula() == aula_scelta && d.getData_disponibile().equals(data)){
@@ -265,21 +266,22 @@ public class Main {
                             }*/
                             sistema.load_disponibilita1(aula_scelta, data_scelta);
 
+
                             for (Disponibilita1 d1: sistema.disponibilita1){
-                                System.out.println("Posto -> "+d1.id_postazione);
+                                System.out.println("Posto -> "+d1.id_postazione+" Tavolo "+d1.id_tavolo);
                             }
 
                             System.out.println("Seleziona il tavolo, inserisci il codice");
                             int tavolo_scelto = scanner.nextInt();
                             System.out.println("Seleziona il posto, inserisci il codice");
                             int postazione_scelta = scanner.nextInt();
-                            System.out.println("Selezione la fascia oraria, digita 1 per la mattina, 2 per il pomeriggio");
+                            System.out.println("Selezione la fascia oraria, digita 1 per la mattina, 2 per il pomeriggio, 3 per la sera");
                             int fascia_scelta = scanner.nextInt();
                             Time ora_di_inizio = null;
                             Time ora_di_fine = null;
 
 
-                            for(Disponibilita d: sistema.disponibilita){
+                            /*for(Disponibilita d: sistema.disponibilita){
                                 if(d.getId_tavolo() == tavolo_scelto && d.getId_postazione() == postazione_scelta){
                                     if(fascia_scelta == 1){
                                         ora_di_inizio = d.getOrario_inizio_1();
@@ -290,9 +292,9 @@ public class Main {
                                         ora_di_fine = d.getOrario_fine_2();
                                     }
                                 }
-                            }
+                            }*/
 
-                            sistema.inserisciDatiPrenotazione(sessioneU.getMatricola(),aula_scelta, tavolo_scelto, postazione_scelta, 1, data, ora_di_inizio, ora_di_fine);
+                            sistema.inserisciDatiPrenotazione(sessioneU.getMatricola(),aula_scelta, tavolo_scelto, postazione_scelta, 1, data, fascia_scelta);
 
                             System.out.println("Confermi la prenotazione?");
                             System.out.println("1) Si");
