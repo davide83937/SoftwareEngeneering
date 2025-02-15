@@ -12,18 +12,45 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
---
--- Database: `dbaulestudio`
---
-CREATE TABLE `prenotazione` (
-  `id` int(11) NOT NULL,
-  `fkstudente` int(11) NOT NULL,
-  `fktavolo` int(11) NOT NULL,
-  `data` date NOT NULL,
-  `orainizio` time NOT NULL,
-  `orafine` time NOT NULL,
-  `fkmateria` int(11)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+
+--------------------------------------------------------------------------------------------------
+
+
+-- CREATE TABLE turno (
+ -- id INT PRIMARY KEY AUTO_INCREMENT,
+  -- nome VARCHAR(50) NOT NULL,          -- Es. "Mattina", "Pomeriggio", "Sera"
+  -- orario_inizio TIME NOT NULL,
+  -- orario_fine TIME NOT NULL
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE tavolo1 (
+  id INT NOT NULL,
+  fkaula INT NOT NULL,
+  numero_postazioni INT NOT NULL,
+  PRIMARY KEY (fkaula, id),
+  FOREIGN KEY (fkaula) REFERENCES aula(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE postazione1 (
+  id INT PRIMARY KEY,
+  fktavolo INT NOT NULL,
+  FOREIGN KEY (fktavolo) REFERENCES tavolo1(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE prenotazione1 (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  fkstudente INT NOT NULL,
+  fkpostazione INT NOT NULL,
+  data DATE NOT NULL,
+  fkturno INT NOT NULL,       -- Riferimento al turno prenotato
+  fkmateria INT,              -- (Opzionale) Riferimento alla materia
+  FOREIGN KEY (fkturno) REFERENCES turno(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+---------------------------------------------------------------------------------
+
 
 CREATE TABLE `aula` (
   `id` int(11) PRIMARY KEY,
