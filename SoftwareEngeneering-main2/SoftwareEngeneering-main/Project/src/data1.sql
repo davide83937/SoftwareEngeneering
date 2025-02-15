@@ -25,18 +25,11 @@ SET time_zone = "+00:00";
 -- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE tavolo1 (
-  id INT NOT NULL,
-  fkaula INT NOT NULL,
-  numero_postazioni INT NOT NULL,
-  PRIMARY KEY (fkaula, id),
-  FOREIGN KEY (fkaula) REFERENCES aula(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE postazione1 (
   id INT PRIMARY KEY,
   fktavolo INT NOT NULL,
-  FOREIGN KEY (fktavolo) REFERENCES tavolo1(id)
+  fkaula INT NOT NULL,
+  FOREIGN KEY (fkaula, fktavolo) REFERENCES tavolo1(fkaula, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE prenotazione1 (
@@ -49,6 +42,21 @@ CREATE TABLE prenotazione1 (
   FOREIGN KEY (fkturno) REFERENCES turno(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE aula1 (
+  id INT PRIMARY KEY,
+  fkedificio INT NOT NULL,
+  nome VARCHAR(32) NOT NULL,
+  numerotavoli INT,
+  numeropostazioni INT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE tavolo1 (
+  id INT NOT NULL,
+  fkaula INT NOT NULL,
+  numero_postazioni INT NOT NULL,
+  PRIMARY KEY (fkaula, id),
+  FOREIGN KEY (fkaula) REFERENCES aula1(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 ---------------------------------------------------------------------------------
 
 
