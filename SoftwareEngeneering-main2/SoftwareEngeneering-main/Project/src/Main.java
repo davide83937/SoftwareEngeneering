@@ -201,8 +201,8 @@ public class Main {
                     scanner.nextLine();  // Consumiamo la newline lasciata da nextInt()
                     switch (scelta) {
                         case 1:
-                            System.out.println("Seleziona una data disponibile, scrivila con lo stesso formato di quelle che vedi");
-                            LinkedList<LocalDate> date = new LinkedList<>();
+                            System.out.println("Seleziona una data formato yyyy-MM-dd");
+                            /*LinkedList<LocalDate> date = new LinkedList<>();
                             for(Disponibilita d: Sistema.getInstance().disponibilita){
                                 if (!d.isOccupato1() || !d.isOccupato2()){
                                     date.add(d.getData_disponibile());
@@ -214,7 +214,7 @@ public class Main {
                             LinkedList<LocalDate> dateSenzaDuplicati = new LinkedList<>(dSenzaDuplicati);
                             for (LocalDate ld: dateSenzaDuplicati){
                                 System.out.println(ld);
-                            }
+                            }*/
                             String data_scelta = scanner.nextLine();
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                             LocalDate data = null;
@@ -227,9 +227,14 @@ public class Main {
                             } catch (DateTimeParseException e) {
                                 System.out.println("Formato data non valido. Assicurati che la data sia nel formato yyyy-MM-dd.");
                             }
-                            LinkedList<Integer> id_aule_disponibili = new LinkedList<>();
+                            /*
+                            LinkedList<Integer> id_aule_disponibili = new LinkedList<>();*/
                             System.out.println("Seleziona un aula, scrivi il codice indicato");
-                            for(Disponibilita d: sistema.disponibilita){
+
+                            for (Aula a: sistema.getListaAule()){
+                                System.out.println("Aula -> "+a.getId()+", Nome -> "+a.getNome()+", Edificio -> "+a.getEdificio());
+                            }
+                            /*for(Disponibilita d: sistema.disponibilita){
                                 if(d.getData_disponibile().equals(data) && (!d.isOccupato1()||!d.isOccupato2())){
                                     id_aule_disponibili.add(d.getId_aula());
                                 }
@@ -244,10 +249,10 @@ public class Main {
                                         System.out.println("Aula -> "+a.getNome()+", Codice -> "+idaula+", Edificio -> "+a.getEdificio());
                                     }
                                 }
-                            }
+                            }*/
 
                             int aula_scelta = scanner.nextInt();
-                            for(Disponibilita d: sistema.disponibilita){
+                            /*for(Disponibilita d: sistema.disponibilita){
                                 if(d.getId_aula() == aula_scelta && d.getData_disponibile().equals(data)){
                                     System.out.println("Postazione -> "+d.getId_postazione()+", Tavolo "+d.getId_tavolo());
                                     if(!d.isOccupato1()){
@@ -257,6 +262,11 @@ public class Main {
                                         System.out.println("Disponibile dalle "+ d.getOrario_inizio_2()+ " alle "+ d.getOrario_fine_2());
                                     }
                                 }
+                            }*/
+                            sistema.load_disponibilita1(aula_scelta, data_scelta);
+
+                            for (Disponibilita1 d1: sistema.disponibilita1){
+                                System.out.println("Posto -> "+d1.id_postazione);
                             }
 
                             System.out.println("Seleziona il tavolo, inserisci il codice");

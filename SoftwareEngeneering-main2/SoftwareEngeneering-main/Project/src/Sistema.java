@@ -21,6 +21,7 @@ public class Sistema {
     public LinkedList<Postazione> postazioni;
     public LinkedList<LocalDate> date;
     public LinkedList<Disponibilita> disponibilita;
+    public LinkedList<Disponibilita1> disponibilita1;
 
 
     public Sistema() throws SQLException {
@@ -40,6 +41,10 @@ public class Sistema {
 
     public LinkedList<Aula> getListaAule() {
         return listaAule;
+    }
+
+    public Prenotazione getPrenotazioneCorrente() {
+        return prenotazioneCorrente;
     }
 
     public void load() throws SQLException {
@@ -85,6 +90,34 @@ public class Sistema {
             listaTavoli.add(t);
         }
     }
+
+
+    public void load_disponibilita1(int aulaId, String data) throws SQLException{
+        String query = null;
+        query = "SELECT p.id, p.fktavolo " +
+        "FROM postazione p " +
+                "JOIN tavolo t ON p.fktavolo = t.id " +
+                "WHERE t.fkaula = ? " +
+                "AND p.id NOT IN ( " +
+                "    SELECT pren.fkpostazione " +
+                "    FROM prenotazione pren " +
+                "    WHERE pren.data = ? " +
+                ")";
+        PreparedStatement stmt = dbConnection.conn.prepareStatement(query);
+        stmt.setInt(1, aulaId);
+        stmt.setDate(2, Date.valueOf(data));
+
+        ResultSet rs = stmt.executeQuery();
+
+        while (rs.next()){
+            Disponibilita1 d1 = new Disponibilita1(rs.getInt("id"), rs.getInt("fktavolo"));
+            disponibilita1.add(d1);
+        }
+
+
+
+    }
+
 
     public void load_disponibilita() throws SQLException{
         String query = null;
@@ -183,7 +216,7 @@ public class Sistema {
             PreparedStatement stmt2 = dbConnection.conn.prepareStatement(query2);
             rowsAffected = stmt2.executeUpdate();
 
-            String query3 = null;
+            /*String query3 = null;
             query3 = "INSERT INTO disponibilità (id, id_tavolo, id_aula, data_disponibile, orario_inizio_1, orario_fine_1, orario_inizio_2, orario_fine_2, occupato_1, occupato_2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt3 = dbConnection.conn.prepareStatement(query3);
             for(int i = 0; i < this.tavoloCorrente.getN_postazioni(); i++){
@@ -201,7 +234,7 @@ public class Sistema {
                     // Esegui la query di inserimento
                     rowsAffected = stmt3.executeUpdate();
                 }
-            }
+            }*/
 
             this.listaTavoli.add(this.tavoloCorrente);
             System.out.println("Tavolo inserita con successo! (" + rowsAffected + " riga/i inserita/e)");
