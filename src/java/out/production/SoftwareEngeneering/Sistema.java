@@ -29,7 +29,6 @@ public class Sistema {
         this.listaTavoli = new LinkedList<>();
         this.postazioni = new LinkedList<>();
         this.disponibilita = new LinkedList<>();
-        this.disponibilita1 = new LinkedList<>();
         dbConnection = new DatabaseConnection();
         this.date = new LinkedList<>();
         LocalDate start = LocalDate.of(2025, 2, 13);
@@ -75,7 +74,7 @@ public class Sistema {
             int n_posti = rs1.getInt("numero_postazioni");
             int id_aula = rs1.getInt("fkaula");
             Tavolo t = new Tavolo(id, id_aula, n_posti);
-            String query2 = "SELECT * FROM `postazione1` WHERE `fkaula` ="+id_aula;
+            String query2 = "SELECT * FROM `postazione1` WHERE `id_aula` ="+id_aula;
             PreparedStatement stmt2 = dbConnection.conn.prepareStatement(query2);
             ResultSet rs2 = stmt2.executeQuery();
 
@@ -95,12 +94,12 @@ public class Sistema {
     public void load_disponibilita1(int aulaId, String data) throws SQLException{
         String query = null;
         query = "SELECT p.id, p.fktavolo " +
-        "FROM postazione1 p " +
-                "JOIN tavolo1 t ON p.fktavolo = t.id " +
+        "FROM postazione p " +
+                "JOIN tavolo t ON p.fktavolo = t.id " +
                 "WHERE t.fkaula = ? " +
                 "AND p.id NOT IN ( " +
                 "    SELECT pren.fkpostazione " +
-                "    FROM prenotazione2 pren " +
+                "    FROM prenotazione pren " +
                 "    WHERE pren.data = ? " +
                 ")";
         PreparedStatement stmt = dbConnection.conn.prepareStatement(query);
@@ -198,7 +197,6 @@ public class Sistema {
             stmt.setInt(2, this.tavoloCorrente.getCodiceaula());
             stmt.setInt(3, this.tavoloCorrente.getN_postazioni());
             // Esegui la query di inserimento
-
             int rowsAffected = stmt.executeUpdate();
             String query1 = null;
             query1 = "INSERT INTO `postazione1` (`id`, `fktavolo`, `fkaula`) VALUES (?, ?, ?)";
@@ -246,32 +244,36 @@ public class Sistema {
         }
     }
 
-    public void inserisciDatiPrenotazione(int id_studente_prenotato, int id_aula, int id_tavolo, int postazione, int materia, LocalDate data, int  turno){
+    public void inserisciDatiPrenotazione(int id_studente_prenotato, int id_aula, int id_tavolo, int postazione, int materia, LocalDate data, Time ora_inizio, Time ora_fine){
         Random rand = new Random();
         int codPrenotazione = rand.nextInt(10000000);
-        this.prenotazioneCorrente = new Prenotazione(id_studente_prenotato, codPrenotazione, data, materia, id_aula, id_tavolo, postazione, turno);
+        this.prenotazioneCorrente = new Prenotazione(id_studente_prenotato, codPrenotazione, data, ora_inizio, ora_fine, materia, id_aula, id_tavolo, postazione);
         System.out.println(this.prenotazioneCorrente);
     }
     public void terminaPrenotazione(DatabaseConnection dbConnection, int fascia){
 
         String query;
-        query = "INSERT INTO `prenotazione2` (`id`, `fkstudente`, `fkpostazione`, `fktavolo`, `fkaula`, `data`, `fkturno`, `fkmateria`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        query = "INSERT INTO `prenotazione` (`id`, `fkstudente`, `fktavolo`, `data`, `orainizio`, `orafine`, `fkmateria`) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = dbConnection.conn.prepareStatement(query)) {
             // Imposta i parametri della query
             stmt.setInt(1, this.prenotazioneCorrente.getCodicePrenotazione());  // Imposta l'ID del dipartimento
             stmt.setInt(2, this.prenotazioneCorrente.getId_stud_prenotato());        // Imposta il nome dell'aula
-            stmt.setInt(3, this.prenotazioneCorrente.getId_postazione());
-            stmt.setInt(4, this.prenotazioneCorrente.getId_tavolo());
-            stmt.setInt(5, this.prenotazioneCorrente.getId_aula());
-            stmt.setDate(6, java.sql.Date.valueOf(this.prenotazioneCorrente.getData()));
-            stmt.setInt(7, this.prenotazioneCorrente.getTurno());
-            stmt.setInt(8, this.prenotazioneCorrente.getMateria());
+            stmt.setInt(3, this.prenotazioneCorrente.getId_tavolo());
+            stmt.setDate(4, java.sql.Date.valueOf(this.prenotazioneCorrente.getData()));
+            stmt.setTime(5, this.prenotazioneCorrente.getOrario_inizio());
+            stmt.setTime(6, this.prenotazioneCorrente.getOrario_fine());
+            stmt.setInt(7, this.prenotazioneCorrente.getMateria());
 
             // Esegui la query di inserimento
             int rowsAffected = stmt.executeUpdate();
 
             System.out.println("Prenotazione inserita con successo! (" + rowsAffected + " riga/i inserita/e)");
-
+            String f = "occupato_"+fascia;
+            query = "UPDATE disponibilità SET "+f+"= true" +" WHERE id ="+this.prenotazioneCorrente.getId_postazione()+ " and id_tavolo ="+ this.prenotazioneCorrente.getId_tavolo()+ " and id_aula ="+this.prenotazioneCorrente.getId_aula()+ " and data_disponibile = ?";
+            PreparedStatement stmt1 = dbConnection.conn.prepareStatement(query);
+            stmt1.setDate(1, java.sql.Date.valueOf(this.prenotazioneCorrente.getData()));
+            rowsAffected = stmt1.executeUpdate();
+            System.out.println("Disponibilità aggiornata! (" + rowsAffected);
         } catch (SQLException e) {
             e.printStackTrace();
         }

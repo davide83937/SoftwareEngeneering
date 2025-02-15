@@ -6,19 +6,21 @@ public class Prenotazione {
     private int id_stud_prenotato;
     private int codicePrenotazione;
     private LocalDate data;
-    private int turno;
+    private Time orario_inizio;
+    private Time orario_fine;
     private int materia;
     private int id_aula;
     private int id_tavolo;
     private int id_postazione;
 
     // Costruttore
-    public Prenotazione(int id_stud_prenotato, int codicePrenotazione, LocalDate data,
-                        int materia, int id_aula, int id_tavolo, int id_postazione, int turno) {
+    public Prenotazione(int id_stud_prenotato, int codicePrenotazione, LocalDate data, Time orario_inizio, Time orario_fine,
+                        int materia, int id_aula, int id_tavolo, int id_postazione) {
         this.id_stud_prenotato = id_stud_prenotato;
         this.codicePrenotazione = codicePrenotazione;
         this.data = data;
-        this.turno = turno;
+        this.orario_inizio = orario_inizio;
+        this.orario_fine = orario_fine;
         this.materia = materia;
         this.id_aula = id_aula;
         this.id_tavolo = id_tavolo;
@@ -27,10 +29,6 @@ public class Prenotazione {
 
     // Getter e Setter
 
-
-    public int getTurno() {
-        return turno;
-    }
 
     public int getId_stud_prenotato() { return id_stud_prenotato; }
 
@@ -48,10 +46,25 @@ public class Prenotazione {
         return data;
     }
 
+    public Time getOrario_inizio() {
+        return orario_inizio;
+    }
+
+    public Time getOrario_fine() {
+        return orario_fine;
+    }
+
     public void setData(LocalDate data) {
         this.data = data;
     }
 
+    public void setOrario_inizio(Time orario_inizio) {
+        this.orario_inizio = orario_inizio;
+    }
+
+    public void setOrario_fine(Time orario_fine) {
+        this.orario_fine = orario_fine;
+    }
 
     public int getMateria() {
         return materia;
@@ -92,7 +105,8 @@ public class Prenotazione {
                 "id_stud_prenotato=" + id_stud_prenotato +
                 ", codicePrenotazione=" + codicePrenotazione +
                 ", data=" + data +
-
+                ", orario_inizio=" + orario_inizio +
+                ", orario_fine=" + orario_fine +
                 ", materia=" + materia +
                 ", id_aula=" + id_aula +
                 ", id_tavolo=" + id_tavolo +
