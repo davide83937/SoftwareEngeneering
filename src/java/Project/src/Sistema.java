@@ -17,27 +17,15 @@ public class Sistema {
     private Aula aulaCorrente;
     private Tavolo tavoloCorrente;
     private LinkedList<Aula> listaAule;
-    private  LinkedList<Tavolo> listaTavoli;
-    public LinkedList<Postazione> postazioni;
-    public LinkedList<LocalDate> date;
-    public LinkedList<Disponibilita> disponibilita;
-    public LinkedList<Disponibilita1> disponibilita1;
+    public LinkedList<Disponibilita1> disponibilita;
+    public  LinkedList<Prenotazione> prenotazioni;
 
 
     public Sistema() throws SQLException {
         this.listaAule = new LinkedList<>();
-        this.listaTavoli = new LinkedList<>();
-        this.postazioni = new LinkedList<>();
+        this.prenotazioni = new LinkedList<>();
         this.disponibilita = new LinkedList<>();
-        this.disponibilita1 = new LinkedList<>();
         dbConnection = new DatabaseConnection();
-        this.date = new LinkedList<>();
-        LocalDate start = LocalDate.of(2025, 2, 13);
-        LocalDate end = LocalDate.of(2025, 2, 28);
-
-        for (LocalDate data = start; !data.isAfter(end); data = data.plusDays(1)) {
-            date.add(data);
-        }
     }
 
     public LinkedList<Aula> getListaAule() {
@@ -75,10 +63,11 @@ public class Sistema {
             int n_posti = rs1.getInt("numero_postazioni");
             int id_aula = rs1.getInt("fkaula");
             Tavolo t = new Tavolo(id, id_aula, n_posti);
+
             String query2 = "SELECT * FROM `postazione1` WHERE `fkaula` ="+id_aula;
             PreparedStatement stmt2 = dbConnection.conn.prepareStatement(query2);
             ResultSet rs2 = stmt2.executeQuery();
-
+            LinkedList<Postazione> postazioni = new LinkedList<Postazione>();
             while (rs2.next()) {
                 int id_post = rs2.getInt("id");
                 int id_tav = rs2.getInt("fktavolo");
@@ -87,7 +76,9 @@ public class Sistema {
                 postazioni.add(p);
             }
             t.setLista_postazioni(postazioni);
-            listaTavoli.add(t);
+            for (Aula a: listaAule){
+                a.getLista_tavoli().add(t);
+            }
         }
     }
 
@@ -111,38 +102,11 @@ public class Sistema {
 
         while (rs.next()){
             Disponibilita1 d1 = new Disponibilita1(rs.getInt("id"), rs.getInt("fktavolo"));
-            disponibilita1.add(d1);
-        }
-
-
-
-    }
-
-
-    public void load_disponibilita() throws SQLException{
-        String query = null;
-        query = "SELECT * FROM disponibilità";
-        PreparedStatement stmt = dbConnection.conn.prepareStatement(query);
-        ResultSet rs = stmt.executeQuery();
-
-        while (rs.next()) {
-            int id = rs.getInt("id");
-            int id_tavolo = rs.getInt("id_tavolo");
-            int id_aula = rs.getInt("id_aula");
-            Date data = rs.getDate("data_disponibile");
-            LocalDate data_disponibile = data.toLocalDate();
-
-            Time orario_inizio_1 = rs.getTime("orario_inizio_1");
-            Time orario_fine_1 = rs.getTime("orario_fine_1");
-            Time orario_inizio_2 = rs.getTime("orario_inizio_2");
-            Time orario_fine_2 = rs.getTime("orario_fine_2");
-            Boolean occupato_1 = rs.getBoolean("occupato_1");
-            Boolean occupato_2 = rs.getBoolean("occupato_2");
-
-            Disponibilita d = new Disponibilita(id, id_tavolo, id_aula, data_disponibile, orario_inizio_1, orario_fine_1, orario_inizio_2, orario_fine_2, occupato_1, occupato_2);
-            disponibilita.add(d);
+            disponibilita.add(d1);
         }
     }
+
+
 
     public static Sistema getInstance() throws SQLException {
         if (sistema == null)
@@ -175,10 +139,17 @@ public class Sistema {
 
             // Esegui la query di inserimento
             int rowsAffected = stmt.executeUpdate();
-            this.listaAule.add(this.aulaCorrente);
+
+            Aula aula = this.listaAule.stream().filter(a -> a.getId() == tavoloCorrente.getCodiceaula()).findFirst().orElse(null);
+            if(aula == null){this.listaAule.add(this.aulaCorrente);}
+
             System.out.println("Aula inserita con successo! (" + rowsAffected + " riga/i inserita/e)");
         } catch (SQLException e) {
-            e.printStackTrace();
+            if (e.getSQLState().equals("23000")) {  // Violazione di chiave primaria
+                System.err.println("Aula con lo stesso ID gia esistente!");
+            } else {
+                System.err.println("Errore SQL: " + e.getMessage());
+            }
         }
     }
 
@@ -203,7 +174,6 @@ public class Sistema {
             String query1 = null;
             query1 = "INSERT INTO `postazione1` (`id`, `fktavolo`, `fkaula`) VALUES (?, ?, ?)";
 
-
             for(int i = 0; i < this.tavoloCorrente.getN_postazioni(); i++){
                 try (PreparedStatement stmt1 = dbConnection.conn.prepareStatement(query1)) {
                     stmt1.setInt(2, this.tavoloCorrente.getId());
@@ -213,36 +183,29 @@ public class Sistema {
                     System.out.println("Postazione inserita, rows affected: " + rowsAffected);
                 }
             }
-
             String query2 = null;
             query2 = "UPDATE aula1 SET numerotavoli = numerotavoli + 1 WHERE id = "+this.tavoloCorrente.getCodiceaula();
             PreparedStatement stmt2 = dbConnection.conn.prepareStatement(query2);
             rowsAffected = stmt2.executeUpdate();
 
-            /*String query3 = null;
-            query3 = "INSERT INTO disponibilità (id, id_tavolo, id_aula, data_disponibile, orario_inizio_1, orario_fine_1, orario_inizio_2, orario_fine_2, occupato_1, occupato_2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement stmt3 = dbConnection.conn.prepareStatement(query3);
-            for(int i = 0; i < this.tavoloCorrente.getN_postazioni(); i++){
-                for(LocalDate ld: date) {
-                    stmt3.setInt(1, i);
-                    stmt3.setInt(2, this.tavoloCorrente.getId());        // Imposta fk dell'aula
-                    stmt3.setInt(3, this.tavoloCorrente.getCodiceaula());
-                    stmt3.setDate(4, Date.valueOf(ld));
-                    stmt3.setTime(5, Time.valueOf("08:00:00"));
-                    stmt3.setTime(6, Time.valueOf("13:00:00"));
-                    stmt3.setTime(7, Time.valueOf("13:00:00"));
-                    stmt3.setTime(8, Time.valueOf("19:00:00"));
-                    stmt3.setBoolean(9, false);
-                    stmt3.setBoolean(10, false);
-                    // Esegui la query di inserimento
-                    rowsAffected = stmt3.executeUpdate();
+            Aula aula = this.listaAule.stream().filter(a -> a.getId() == tavoloCorrente.getCodiceaula()).findFirst().orElse(null);
+            if(aula != null){
+                Tavolo tavolo = aula.getLista_tavoli().stream().filter(tavolo1 -> tavolo1.getId() == this.tavoloCorrente.getId()).findFirst().orElse(null);
+                if (tavolo == null){
+                    for (int i = 0; i < this.tavoloCorrente.getN_postazioni(); i++){
+                        Postazione p = new Postazione(i, this.tavoloCorrente.getId(), this.tavoloCorrente.getCodiceaula());
+                        this.tavoloCorrente.getLista_postazioni().add(p);
+                    }
                 }
-            }*/
-
-            this.listaTavoli.add(this.tavoloCorrente);
+            }
+           System.out.println(this.listaAule);
             System.out.println("Tavolo inserita con successo! (" + rowsAffected + " riga/i inserita/e)");
         } catch (SQLException e) {
-            e.printStackTrace();
+            if (e.getSQLState().equals("23000")) {  // Violazione di chiave primaria
+                System.err.println("Aula inserita non esistente o tavolo con lo stesso ID gia esistente!");
+            } else {
+                System.err.println("Errore SQL: " + e.getMessage());
+            }
         }
     }
 
@@ -252,7 +215,7 @@ public class Sistema {
         this.prenotazioneCorrente = new Prenotazione(id_studente_prenotato, codPrenotazione, data, materia, id_aula, id_tavolo, postazione, turno);
         System.out.println(this.prenotazioneCorrente);
     }
-    public void terminaPrenotazione(DatabaseConnection dbConnection, int fascia){
+    public void terminaPrenotazione(DatabaseConnection dbConnection){
 
         String query;
         query = "INSERT INTO `prenotazione2` (`id`, `fkstudente`, `fkpostazione`, `fktavolo`, `fkaula`, `data`, `fkturno`, `fkmateria`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -270,10 +233,16 @@ public class Sistema {
             // Esegui la query di inserimento
             int rowsAffected = stmt.executeUpdate();
 
+            prenotazioni.add(this.prenotazioneCorrente);
             System.out.println("Prenotazione inserita con successo! (" + rowsAffected + " riga/i inserita/e)");
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            if (e.getErrorCode() == 1062) {  // Codice di errore MySQL per violazione UNIQUE KEY
+                System.out.println("Questa prenotazione esista già");
+            } else {
+                // Rilancia l'eccezione se non è una violazione della UNIQUE KEY
+                e.printStackTrace();
+            }
         }
 
     }

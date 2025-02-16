@@ -12,7 +12,6 @@ public class Main {
 
         Sistema sistema = Sistema.getInstance();
         //sistema.load();
-
         Scanner scanner = new Scanner(System.in);
         DatabaseConnection dbConnection = null;
         Studente sessioneU=null;
@@ -38,25 +37,19 @@ public class Main {
                         // Esegui una query
                         System.out.print("Inserisci nome: ");
                         nome = scanner.nextLine();
-
                         System.out.print("Inserisci password: ");
                         String password = scanner.nextLine();
-
                         query = "SELECT * FROM amministratore WHERE amministratore.nome = \"" + nome + "\" AND amministratore.password = \"" + password + "\"";
-
                         List<Map<String, Object>> amministratore = dbConnection.eseguiQuery(query);
 
                         if (amministratore != null && !amministratore.isEmpty()) {
                             Map<String, Object> primaRiga = amministratore.get(0);
-
                             nome = (String) primaRiga.get("Nome");
                             cognome = (String) primaRiga.get("Cognome");
                             codiceFiscale = (String) primaRiga.get("Codicefiscale");
                             email = (String) primaRiga.get("Email");
                             nascita = (String) primaRiga.get("Email");
-
                             sessioneA = new Amministratore(nome, cognome, nascita, codiceFiscale, email);
-
                             System.out.println("Login effettuato con successo per: " + sessioneA.getNome() + " " + sessioneA.getCognome());
                             loggato = true;
                         } else {
@@ -67,17 +60,13 @@ public class Main {
                         // Esegui una query
                         System.out.print("Inserisci nome: ");
                         nome = scanner.nextLine();
-
                         System.out.print("Inserisci password: ");
                         password = scanner.nextLine();
-
                         query = "SELECT * FROM studente, corsidistudio WHERE studente.Fkcorsodistudio=corsidistudio.id and studente.Nome = \"" + nome + "\" AND studente.Password = \"" + password + "\"";
-
                         List<Map<String, Object>> utente = dbConnection.eseguiQuery(query);
 
                         if (utente != null && !utente.isEmpty()) {
                             Map<String, Object> primaRiga = utente.get(0);
-
                             // Estrarre i valori correttamente
                             nome = (String) primaRiga.get("Nome");
                             cognome = (String) primaRiga.get("Cognome");
@@ -91,7 +80,7 @@ public class Main {
                             sessioneU = new Studente(nome, cognome, nascita, codiceFiscale, email, matricola, corsoDiStudio);
                             System.out.println("Login effettuato con successo per: " + sessioneU.getNome() + " " + sessioneU.getCognome());
                             sistema.load();
-                            sistema.load_disponibilita();
+
                             loggato = true;
                         } else {
                             System.out.println("Nome o password errati.");
@@ -106,7 +95,6 @@ public class Main {
                         System.out.println("Opzione non valida!");
                 }
             }
-
 
             while (!exit) {
                 if (sessioneA != null) {
@@ -202,19 +190,7 @@ public class Main {
                     switch (scelta) {
                         case 1:
                             System.out.println("Seleziona una data formato yyyy-MM-dd");
-                            /*LinkedList<LocalDate> date = new LinkedList<>();
-                            for(Disponibilita d: Sistema.getInstance().disponibilita){
-                                if (!d.isOccupato1() || !d.isOccupato2()){
-                                    date.add(d.getData_disponibile());
-                                }
-                            }
-                            // Creiamo un HashSet per rimuovere i duplicati
-                            Set<LocalDate> dSenzaDuplicati = new HashSet<>(date);
-                            // Convertiamo di nuovo in una lista
-                            LinkedList<LocalDate> dateSenzaDuplicati = new LinkedList<>(dSenzaDuplicati);
-                            for (LocalDate ld: dateSenzaDuplicati){
-                                System.out.println(ld);
-                            }*/
+
                             String data_scelta = scanner.nextLine();
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                             LocalDate data = null;
@@ -227,47 +203,18 @@ public class Main {
                             } catch (DateTimeParseException e) {
                                 System.out.println("Formato data non valido. Assicurati che la data sia nel formato yyyy-MM-dd.");
                             }
-                            /*
-                            LinkedList<Integer> id_aule_disponibili = new LinkedList<>();*/
+
                             System.out.println("Seleziona un aula, scrivi il codice indicato");
 
                             for (Aula a: sistema.getListaAule()){
                                 System.out.println("Aula -> "+a.getId()+", Nome -> "+a.getNome()+", Edificio -> "+a.getEdificio());
                             }
-                            /*for(Disponibilita d: sistema.disponibilita){
-                                if(d.getData_disponibile().equals(data) && (!d.isOccupato1()||!d.isOccupato2())){
-                                    id_aule_disponibili.add(d.getId_aula());
-                                }
-                            }
-                            Set<Integer> id_senza_duplicati = new HashSet<>(id_aule_disponibili);
-                            // Convertiamo di nuovo in una lista
-                            LinkedList<Integer> idSenzaDuplicati = new LinkedList<>(id_senza_duplicati);
-
-                            for (Integer idaula: idSenzaDuplicati){
-                                for(Aula a: Sistema.getInstance().getListaAule()){
-                                    if(idaula == a.getId()){
-                                        System.out.println("Aula -> "+a.getNome()+", Codice -> "+idaula+", Edificio -> "+a.getEdificio());
-                                    }
-                                }
-                            }*/
 
                             System.out.println("Inserisci un aula");
                             int aula_scelta = scanner.nextInt();
-                            /*for(Disponibilita d: sistema.disponibilita){
-                                if(d.getId_aula() == aula_scelta && d.getData_disponibile().equals(data)){
-                                    System.out.println("Postazione -> "+d.getId_postazione()+", Tavolo "+d.getId_tavolo());
-                                    if(!d.isOccupato1()){
-                                        System.out.println("Disponibile dalle "+ d.getOrario_inizio_1()+" alle "+d.getOrario_fine_1());
-                                    }
-                                    if(!d.isOccupato2()){
-                                        System.out.println("Disponibile dalle "+ d.getOrario_inizio_2()+ " alle "+ d.getOrario_fine_2());
-                                    }
-                                }
-                            }*/
                             sistema.load_disponibilita1(aula_scelta, data_scelta);
 
-
-                            for (Disponibilita1 d1: sistema.disponibilita1){
+                            for (Disponibilita1 d1: sistema.disponibilita){
                                 System.out.println("Posto -> "+d1.id_postazione+" Tavolo "+d1.id_tavolo);
                             }
 
@@ -277,22 +224,6 @@ public class Main {
                             int postazione_scelta = scanner.nextInt();
                             System.out.println("Selezione la fascia oraria, digita 1 per la mattina, 2 per il pomeriggio, 3 per la sera");
                             int fascia_scelta = scanner.nextInt();
-                            Time ora_di_inizio = null;
-                            Time ora_di_fine = null;
-
-
-                            /*for(Disponibilita d: sistema.disponibilita){
-                                if(d.getId_tavolo() == tavolo_scelto && d.getId_postazione() == postazione_scelta){
-                                    if(fascia_scelta == 1){
-                                        ora_di_inizio = d.getOrario_inizio_1();
-                                        ora_di_fine = d.getOrario_fine_1();
-                                    }
-                                    if(fascia_scelta == 2){
-                                        ora_di_inizio = d.getOrario_inizio_2();
-                                        ora_di_fine = d.getOrario_fine_2();
-                                    }
-                                }
-                            }*/
 
                             sistema.inserisciDatiPrenotazione(sessioneU.getMatricola(),aula_scelta, tavolo_scelto, postazione_scelta, 1, data, fascia_scelta);
 
@@ -301,7 +232,7 @@ public class Main {
                             System.out.println("2) No");
                             conferma = scanner.nextInt();
                             if(conferma == 1){
-                                sistema.terminaPrenotazione(dbConnection, fascia_scelta);
+                                sistema.terminaPrenotazione(dbConnection);
                             }
                             break;
                         case 2:
