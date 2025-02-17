@@ -201,20 +201,8 @@ public class Main {
                             System.out.println("Inserisci un aula");
                             int aula_scelta = scanner.nextInt();
 
-                            sistema.inserisci_aula_data(data_scelta, aula_scelta);
 
-                            for (Disponibilita1 d1: sistema.disponibilita){
-                                System.out.println("Posto -> "+d1.id_postazione+", Tavolo "+d1.id_tavolo+", Turno "+d1.turno);
-                            }
-
-                            System.out.println("Seleziona il tavolo, inserisci il codice");
-                            int tavolo_scelto = scanner.nextInt();
-                            System.out.println("Seleziona il posto, inserisci il codice");
-                            int postazione_scelta = scanner.nextInt();
-                            System.out.println("Selezione la turno, digita 1 per la mattina, 2 per il pomeriggio, 3 per la sera");
-                            int fascia_scelta = scanner.nextInt();
-
-                            sistema.inserisciDatiPrenotazione(sessioneU.getMatricola(),aula_scelta, tavolo_scelto, postazione_scelta, 1, sistema.stringToDate(data_scelta), fascia_scelta);
+                            sistema.inserisciDatiPrenotazione(sessioneU.getMatricola(), aula_scelta, data_scelta);
 
                             System.out.println("Confermi la prenotazione?");
                             System.out.println("1) Si");

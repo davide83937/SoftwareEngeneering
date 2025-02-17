@@ -21,6 +21,7 @@ public class Sistema {
     private LinkedList<Aula> listaAule;
     public LinkedList<Disponibilita1> disponibilita;
     public  LinkedList<Prenotazione> prenotazioni;
+    Scanner scanner = new Scanner(System.in);
 
 
     public Sistema() throws SQLException {
@@ -239,10 +240,23 @@ public class Sistema {
         }
     }
 
-    public void inserisciDatiPrenotazione(int id_studente_prenotato, int id_aula, int id_tavolo, int postazione, int materia, LocalDate data, int  turno){
+    public void inserisciDatiPrenotazione(int id_studente_prenotato, int id_aula, String data) throws SQLException {
+
+        inserisci_aula_data(data, id_aula);
+        for (Disponibilita1 d1: disponibilita){
+            System.out.println("Posto -> "+d1.id_postazione+", Tavolo "+d1.id_tavolo+", Turno "+d1.turno);
+        }
+
+        System.out.println("Seleziona il tavolo, inserisci il codice");
+        int tavolo_scelto = scanner.nextInt();
+        System.out.println("Seleziona il posto, inserisci il codice");
+        int postazione_scelta = scanner.nextInt();
+        System.out.println("Selezione la turno, digita 1 per la mattina, 2 per il pomeriggio, 3 per la sera");
+        int fascia_scelta = scanner.nextInt();
+
         Random rand = new Random();
         int codPrenotazione = rand.nextInt(10000000);
-        this.prenotazioneCorrente = new Prenotazione(id_studente_prenotato, codPrenotazione, data, materia, id_aula, id_tavolo, postazione, turno);
+        this.prenotazioneCorrente = new Prenotazione(id_studente_prenotato, codPrenotazione, stringToDate(data), 1, id_aula, tavolo_scelto, postazione_scelta, fascia_scelta);
         System.out.println(this.prenotazioneCorrente);
 
     }
