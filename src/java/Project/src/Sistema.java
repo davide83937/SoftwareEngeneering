@@ -6,6 +6,8 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 
@@ -82,26 +84,54 @@ public class Sistema {
         }
     }
 
+    public LocalDate stringToDate(String dataa){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate data = null;
+        try {
+            // Converti la stringa in un oggetto LocalDate
+            data = LocalDate.parse(dataa, formatter);
+            // Stampa la data per conferma
+            System.out.println("Data inserita: " + data);
+        } catch (DateTimeParseException e) {
+            System.out.println("Formato data non valido. Assicurati che la data sia nel formato yyyy-MM-dd.");
+        }
+        return data;
+    }
+
+    public void inserisci_aula_data(String data_scelta, int codAula) throws SQLException {
+        stringToDate(data_scelta);
+        this.load_disponibilita1(codAula, data_scelta);
+
+    }
 
     public void load_disponibilita1(int aulaId, String data) throws SQLException{
         String query = null;
-        query = "SELECT p.id, p.fktavolo " +
-        "FROM postazione1 p " +
-                "JOIN tavolo1 t ON p.fktavolo = t.id " +
-                "WHERE t.fkaula = ? " +
-                "AND p.id NOT IN ( " +
-                "    SELECT pren.fkpostazione " +
-                "    FROM prenotazione2 pren " +
-                "    WHERE pren.data = ? " +
-                ")";
+        query = "SELECT " +
+                "    p.id AS id_postazione, " +
+                "    p.fktavolo, " +
+                "    p.fkaula, " +
+                "    t.id AS id_turno, " +
+                "    t.nome AS nome_turno, " +
+                "    t.orario_inizio, " +
+                "    t.orario_fine " +
+                "FROM postazione1 p " +
+                "JOIN turno t " +
+                "LEFT JOIN prenotazione2 pr " +
+                "    ON pr.fkpostazione = p.id " +
+                "    AND pr.fktavolo = p.fktavolo " +
+                "    AND pr.fkaula = p.fkaula " +
+                "    AND pr.data = ? " +  // Parametro per la data
+                "    AND pr.fkturno = t.id " +
+                "WHERE p.fkaula = ? " +  // Parametro per l'aula
+                "AND pr.id IS NULL";
         PreparedStatement stmt = dbConnection.conn.prepareStatement(query);
-        stmt.setInt(1, aulaId);
-        stmt.setDate(2, Date.valueOf(data));
+        stmt.setInt(2, aulaId);
+        stmt.setDate(1, Date.valueOf(data));
 
         ResultSet rs = stmt.executeQuery();
 
         while (rs.next()){
-            Disponibilita1 d1 = new Disponibilita1(rs.getInt("id"), rs.getInt("fktavolo"));
+            Disponibilita1 d1 = new Disponibilita1(rs.getInt("id_postazione"), rs.getInt("fktavolo"), rs.getInt("id_turno"));
             disponibilita.add(d1);
         }
     }
@@ -214,6 +244,7 @@ public class Sistema {
         int codPrenotazione = rand.nextInt(10000000);
         this.prenotazioneCorrente = new Prenotazione(id_studente_prenotato, codPrenotazione, data, materia, id_aula, id_tavolo, postazione, turno);
         System.out.println(this.prenotazioneCorrente);
+
     }
     public void terminaPrenotazione(DatabaseConnection dbConnection){
 

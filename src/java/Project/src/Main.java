@@ -190,19 +190,7 @@ public class Main {
                     switch (scelta) {
                         case 1:
                             System.out.println("Seleziona una data formato yyyy-MM-dd");
-
                             String data_scelta = scanner.nextLine();
-                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                            LocalDate data = null;
-                            try {
-                                // Converti la stringa in un oggetto LocalDate
-                                data = LocalDate.parse(data_scelta, formatter);
-
-                                // Stampa la data per conferma
-                                System.out.println("Data inserita: " + data);
-                            } catch (DateTimeParseException e) {
-                                System.out.println("Formato data non valido. Assicurati che la data sia nel formato yyyy-MM-dd.");
-                            }
 
                             System.out.println("Seleziona un aula, scrivi il codice indicato");
 
@@ -212,20 +200,21 @@ public class Main {
 
                             System.out.println("Inserisci un aula");
                             int aula_scelta = scanner.nextInt();
-                            sistema.load_disponibilita1(aula_scelta, data_scelta);
+
+                            sistema.inserisci_aula_data(data_scelta, aula_scelta);
 
                             for (Disponibilita1 d1: sistema.disponibilita){
-                                System.out.println("Posto -> "+d1.id_postazione+" Tavolo "+d1.id_tavolo);
+                                System.out.println("Posto -> "+d1.id_postazione+", Tavolo "+d1.id_tavolo+", Turno "+d1.turno);
                             }
 
                             System.out.println("Seleziona il tavolo, inserisci il codice");
                             int tavolo_scelto = scanner.nextInt();
                             System.out.println("Seleziona il posto, inserisci il codice");
                             int postazione_scelta = scanner.nextInt();
-                            System.out.println("Selezione la fascia oraria, digita 1 per la mattina, 2 per il pomeriggio, 3 per la sera");
+                            System.out.println("Selezione la turno, digita 1 per la mattina, 2 per il pomeriggio, 3 per la sera");
                             int fascia_scelta = scanner.nextInt();
 
-                            sistema.inserisciDatiPrenotazione(sessioneU.getMatricola(),aula_scelta, tavolo_scelto, postazione_scelta, 1, data, fascia_scelta);
+                            sistema.inserisciDatiPrenotazione(sessioneU.getMatricola(),aula_scelta, tavolo_scelto, postazione_scelta, 1, sistema.stringToDate(data_scelta), fascia_scelta);
 
                             System.out.println("Confermi la prenotazione?");
                             System.out.println("1) Si");
