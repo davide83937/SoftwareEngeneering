@@ -11,12 +11,12 @@ public class Main {
     public static void main(String[] args) throws SQLException {
 
         Sistema sistema = Sistema.getInstance();
-        // sistema.load();
+        //sistema.load();
         Scanner scanner = new Scanner(System.in);
         DatabaseConnection dbConnection = null;
-        Studente sessioneU = null;
-        Amministratore sessioneA = null; // per ora classe amministratore non utilizzata da implementare
-        String nome, cognome, codiceFiscale, email, nascita, corsoDiStudio, query;
+        Studente sessioneU=null;
+        Amministratore sessioneA = null; //per ora classe amministratore non utilizzata da implementare
+        String nome,cognome,codiceFiscale,email,nascita,corsoDiStudio,query;
         int numeroposti, conferma, id_tavolo;
         int matricola, scelta;
         try {
@@ -39,8 +39,7 @@ public class Main {
                         nome = scanner.nextLine();
                         System.out.print("Inserisci password: ");
                         String password = scanner.nextLine();
-                        query = "SELECT * FROM amministratore WHERE amministratore.nome = \"" + nome
-                                + "\" AND amministratore.password = \"" + password + "\"";
+                        query = "SELECT * FROM amministratore WHERE amministratore.nome = \"" + nome + "\" AND amministratore.password = \"" + password + "\"";
                         List<Map<String, Object>> amministratore = dbConnection.eseguiQuery(query);
 
                         if (amministratore != null && !amministratore.isEmpty()) {
@@ -51,8 +50,7 @@ public class Main {
                             email = (String) primaRiga.get("Email");
                             nascita = (String) primaRiga.get("Email");
                             sessioneA = new Amministratore(nome, cognome, nascita, codiceFiscale, email);
-                            System.out.println("Login effettuato con successo per: " + sessioneA.getNome() + " "
-                                    + sessioneA.getCognome());
+                            System.out.println("Login effettuato con successo per: " + sessioneA.getNome() + " " + sessioneA.getCognome());
                             loggato = true;
                         } else {
                             System.out.println("Nome o password errati.");
@@ -64,8 +62,7 @@ public class Main {
                         nome = scanner.nextLine();
                         System.out.print("Inserisci password: ");
                         password = scanner.nextLine();
-                        query = "SELECT * FROM studente, corsidistudio WHERE studente.Fkcorsodistudio=corsidistudio.id and studente.Nome = \""
-                                + nome + "\" AND studente.Password = \"" + password + "\"";
+                        query = "SELECT * FROM studente, corsidistudio WHERE studente.Fkcorsodistudio=corsidistudio.id and studente.Nome = \"" + nome + "\" AND studente.Password = \"" + password + "\"";
                         List<Map<String, Object>> utente = dbConnection.eseguiQuery(query);
 
                         if (utente != null && !utente.isEmpty()) {
@@ -80,10 +77,8 @@ public class Main {
                             matricola = ((Number) primaRiga.get("Matricola")).intValue();
                             corsoDiStudio = (String) primaRiga.get("corsodistudio");
                             // Creazione dell'oggetto Studente con i dati recuperati
-                            sessioneU = new Studente(nome, cognome, nascita, codiceFiscale, email, matricola,
-                                    corsoDiStudio);
-                            System.out.println("Login effettuato con successo per: " + sessioneU.getNome() + " "
-                                    + sessioneU.getCognome());
+                            sessioneU = new Studente(nome, cognome, nascita, codiceFiscale, email, matricola, corsoDiStudio);
+                            System.out.println("Login effettuato con successo per: " + sessioneU.getNome() + " " + sessioneU.getCognome());
                             sistema.load();
 
                             loggato = true;
@@ -109,7 +104,7 @@ public class Main {
                     System.out.println("4. Esci");
                     System.out.print("Seleziona un'opzione: ");
                     scelta = scanner.nextInt();
-                    scanner.nextLine(); // Consumiamo la newline lasciata da nextInt()
+                    scanner.nextLine();  // Consumiamo la newline lasciata da nextInt()
                     switch (scelta) {
                         case 1:
                             // Esegui una query
@@ -151,9 +146,9 @@ public class Main {
                             System.out.println("1) Si");
                             System.out.println("2) No");
                             conferma = Integer.parseInt(scanner.nextLine());
-                            if (conferma == 1) {
+                            if(conferma == 1){
                                 sistema.terminaInserimentoAula(dbConnection);
-                            } else {
+                            }else {
                                 break;
                             }
                             break;
@@ -172,11 +167,11 @@ public class Main {
                             System.out.println("1) Si");
                             System.out.println("2) No");
                             conferma = scanner.nextInt();
-                            if (conferma == 1) {
+                            if(conferma == 1){
                                 sistema.terminaInserimentoTavolo(dbConnection);
                             }
                             break;
-
+                            
                         case 4:
                             // Esci dal ciclo
                             exit = true;
@@ -186,12 +181,12 @@ public class Main {
                     }
 
                 } else {
-                    // menu studente
+                    //menu studente
                     System.out.println("1. inserisci prenotazione");
                     System.out.println("2. Esci");
                     System.out.print("Seleziona un'opzione: ");
                     scelta = scanner.nextInt();
-                    scanner.nextLine();
+                    scanner.nextLine();  // Consumiamo la newline lasciata da nextInt()
                     switch (scelta) {
                         case 1:
                             System.out.println("Seleziona una data formato yyyy-MM-dd");
@@ -199,13 +194,13 @@ public class Main {
 
                             System.out.println("Seleziona un aula, scrivi il codice indicato");
 
-                            for (Aula a : sistema.getListaAule()) {
-                                System.out.println("Aula -> " + a.getId() + ", Nome -> " + a.getNome()
-                                        + ", Edificio -> " + a.getEdificio());
+                            for (Aula a: sistema.getListaAule()){
+                                System.out.println("Aula -> "+a.getId()+", Nome -> "+a.getNome()+", Edificio -> "+a.getEdificio());
                             }
 
                             System.out.println("Inserisci un aula");
                             int aula_scelta = scanner.nextInt();
+
 
                             sistema.inserisciDatiPrenotazione(sessioneU.getMatricola(), aula_scelta, data_scelta);
 
@@ -213,12 +208,12 @@ public class Main {
                             System.out.println("1) Si");
                             System.out.println("2) No");
                             conferma = scanner.nextInt();
-                            if (conferma == 1) {
+                            if(conferma == 1){
                                 sistema.terminaPrenotazione(dbConnection);
-
                             }
                             break;
                         case 2:
+                            // Esci dal ciclo
                             exit = true;
                             break;
                         default:
