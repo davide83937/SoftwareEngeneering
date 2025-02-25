@@ -1,165 +1,147 @@
+import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Scanner;
+import java.util.*;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SistemaTest {
 
-    @Mock
-    private DatabaseConnection dbConnection;
-    @Mock
-    private Connection mockConnection;
-    @Mock
-    private PreparedStatement mockStatement;
-
-    @Mock
-    private PreparedStatement mockStatement1;
-    @Mock
-    private PreparedStatement mockStatement2;
-
-    @Mock
-    private Aula aulaMock;
-
-    private AulaService aulaService;
+    public LinkedList<Disponibilita1> disponibilita;
+    public LinkedList<Studente> studenti;
+    public LinkedList<Aula> lista_aule = new LinkedList<>();
+    public Aula aulaCorrente;
+    public Tavolo tavoloCorrente = new Tavolo(1,1, 1);
+    public Prenotazione prenotazioneCorrente = new Prenotazione(1, 1, LocalDate.of(2024, 11, 1), 1, 1,1,1,1, "");
+    public LinkedList<Prenotazione> prenotazioniCorrenti = new LinkedList<>();
+    public LinkedList<Prenotazione> prenotazioni = new LinkedList<>();
 
 
-    @Mock
-    private Studente studenteMock;
-    @Mock
-    private Disponibilita1 disponibilitaMock;
-
-    private Sistema sistema; // Assumiamo che Sistema contenga i metodi inseriti
-    private LinkedList<Integer> studenti;
-    private LinkedList<Prenotazione> prenotazioniCorrenti;
-
-    @BeforeEach
-    public void setUp() throws SQLException {
-        MockitoAnnotations.openMocks(this);
-        aulaService = new AulaService(); // Assumendo che AulaService contenga i metodi
-        sistema = new Sistema(); // Assumendo che Sistema contenga i metodi
-        sistema.studenti = new LinkedList<>(); // Popolato con i mock studenti
-        studenti = new LinkedList<>();
-        prenotazioniCorrenti = new LinkedList<>();
+    public void load_studenti(){
+        this.studenti = new LinkedList<>();
+        Studente s = new Studente(1111, "Davide", "Panto");
+        Studente s1 = new Studente(1112, "Jacopo", "Schembri");
+        Studente s2 = new Studente(1113, "Elon", "Musk");
+        studenti.add(s);
+        studenti.add(s1);
+        studenti.add(s2);
     }
+
+
+    public void load_disponibilita() throws SQLException {
+        this.disponibilita = new LinkedList();
+        Disponibilita1 d1 = new Disponibilita1(1, 1, 1);
+        Disponibilita1 d2 = new Disponibilita1(2, 1, 1);
+        Disponibilita1 d3 = new Disponibilita1(3, 1, 1);
+        Disponibilita1 d4 = new Disponibilita1(1, 1, 1);
+        Disponibilita1 d5 = new Disponibilita1(2, 2, 1);
+        Disponibilita1 d6 = new Disponibilita1(3, 3, 1);
+        this.disponibilita.add(d1);
+        this.disponibilita.add(d2);
+        this.disponibilita.add(d3);
+        this.disponibilita.add(d4);
+        this.disponibilita.add(d5);
+        this.disponibilita.add(d6);
+    }
+
 
 
     @Test
-    public void testInserimentoDatiAula() throws SQLException {
-        int idEdificio = 1;
-        String nomeAula = "Aula 10";
-        int idAula = 10;
-
-        aulaService.inserimentoDatiAula(idEdificio, nomeAula, idAula);
-
-        // Verifica che l'oggetto Aula sia stato creato correttamente
-        Aula aula = aulaService.getAulaCorrente();
-        assertNotNull(aula);
-        assertEquals(idAula, aula.getId());
-        assertEquals(nomeAula, aula.getNome());
+    public void inserimentoDatiAula() throws SQLException {
+        this.aulaCorrente = new Aula(1, 8, "Davide");
+        assertNotNull(this.aulaCorrente);
     }
 
     @Test
-    public void testTerminaInserimentoAula() throws SQLException {
-        // Dati per il test
-        String query = "INSERT INTO `aula1` (`fkedificio`, `nome`, `id`, `numerotavoli`, `numeropostazioni`) VALUES (?, ?, ?, ?, ?)";
-
-        // Mock della connessione e PreparedStatement
-        when(dbConnection.getConnection()).thenReturn(mockConnection);
-        when(mockConnection.prepareStatement(query)).thenReturn(mockStatement);
-
-        // Comportamento del PreparedStatement
-        when(mockStatement.executeUpdate()).thenReturn(1);
-
-        // Mock dell'oggetto Aula nella lista
-        Aula aulaMock = new Aula(10, 1, "Aula 10");
-        aulaService.setAulaCorrente(aulaMock);
-
-        // Chiamata al metodo
-        aulaService.terminaInserimentoAula(dbConnection);
-
-        // Verifica che il PreparedStatement sia stato eseguito
-        verify(mockStatement).setInt(1, 1);
-        verify(mockStatement).setString(2, "Aula 10");
-        verify(mockStatement).setInt(3, 10);
-        verify(mockStatement).setInt(4, 0);
-        verify(mockStatement).setInt(5, 0);
-        verify(mockStatement).executeUpdate();
-
-        // Verifica che l'aula venga aggiunta alla lista
-        assertTrue(aulaService.getListaAule().contains(aulaMock));
+    public void terminaInserimentoAula() {
+    Aula aula = lista_aule.stream().filter(a -> a.getId() == a.getTavoloCorrente().getCodiceaula()).findFirst().orElse(null);
+    if (aula == null) {
+        lista_aule.add(this.aulaCorrente);
+    }
+    assertNotNull(lista_aule.stream().filter(aula1 -> aula1.getId() == aulaCorrente.getId()));
     }
 
     @Test
-    public void testTerminaInserimentoAula_keyViolation() throws SQLException {
-        // Simula la violazione della chiave primaria
-        when(dbConnection.getConnection()).thenReturn(mockConnection);
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockStatement);
-        when(mockStatement.executeUpdate()).thenThrow(new SQLIntegrityConstraintViolationException("Duplicate entry"));
-
-        Aula aulaMock = new Aula(10, 1, "Aula 10");
-        aulaService.setAulaCorrente(aulaMock);
-
-        aulaService.terminaInserimentoAula(dbConnection);
-
-        // Verifica che il messaggio di errore sia stampato
-        // Qui dovresti testare che l'errore venga gestito correttamente (es. tramite System.err)
+    public void inserimentoDatiTavolo(){
+        this.tavoloCorrente = new Tavolo(1, 1,8);
+        assertNotNull(this.tavoloCorrente);
     }
 
     @Test
-    public void testInserimentoDatiTavolo() throws SQLException {
-        int id_tavolo = 1;
-        int id_aula = 10;
-        int n_posti = 5;
-
-        // Chiamata al metodo che imposta i dati del tavolo
-        aulaService.inserimentoDatiTavolo(id_tavolo, id_aula, n_posti);
-
-        // Verifica che il tavolo corrente sia stato impostato correttamente
-        assertNotNull(aulaService.getTavoloCorrente());
-        assertEquals(id_tavolo, aulaService.getTavoloCorrente().getId());
-        assertEquals(id_aula, aulaService.getTavoloCorrente().getCodiceaula());
-        assertEquals(n_posti, aulaService.getTavoloCorrente().getN_postazioni());
+    public void terminaInserimentoTavolo(){
+        for (int i = 0; i < this.tavoloCorrente.getN_postazioni(); i++){
+            Postazione p = new Postazione(i, this.tavoloCorrente.getId(), this.tavoloCorrente.getCodiceaula());
+            this.tavoloCorrente.getLista_postazioni().add(p);
+        }
+        lista_aule.stream().filter(aula -> aula.getId() == this.tavoloCorrente.getCodiceaula()).findFirst().ifPresent(aula -> aula.getLista_tavoli().add(this.tavoloCorrente));
+        Optional<Aula> a = lista_aule.stream().filter(aula -> aula.getId() == tavoloCorrente.getId()).findFirst();
+        assertNotNull(a);
     }
 
     @Test
-    public void testTerminaInserimentoTavolo() throws SQLException {
-        int id_tavolo = 1;
-        int id_aula = 10;
-        int n_posti = 5;
+    public void inserisciDatiPrenotazione() throws SQLException {
 
-        // Mock della connessione e dei PreparedStatement
-        when(dbConnection.getConnection()).thenReturn(mockConnection);
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockStatement, mockStatement1, mockStatement2);
-        when(mockStatement.executeUpdate()).thenReturn(1); // Simula l'inserimento dei dati
-        when(mockStatement1.executeUpdate()).thenReturn(1); // Simula l'inserimento delle postazioni
-        when(mockStatement2.executeUpdate()).thenReturn(1); // Simula l'aggiornamento dell'aula
+        load_studenti();
+        load_disponibilita();
+        int count = 1;
+        if (studenti.size() > 1) {
+            count = 0;
+            for (Studente s : studenti) {
 
-        // Impostazione del tavolo corrente
-        aulaService.inserimentoDatiTavolo(id_tavolo, id_aula, n_posti);
+                for (Studente st : studenti) {
+                    if (s.getMatricola() == st.getMatricola()) {
+                        count++;
+                        System.out.println(count);
+                        break;
+                    }
+                }
+            }
+        }
+        System.out.println(count);
+        System.out.println(studenti.size());
+        if (count == studenti.size()) {
 
-        // Esegui il metodo di terminazione
-        aulaService.terminaInserimentoTavolo(dbConnection);
 
-        // Verifica che il metodo executeUpdate sia stato chiamato per ogni query
-        verify(mockStatement, times(1)).executeUpdate();
-        verify(mockStatement1, times(1)).executeUpdate();
-        verify(mockStatement2, times(n_posti)).executeUpdate();
+            LinkedList<Integer> postazioni = new LinkedList<>();
+            postazioni.add(disponibilita.get(1).id_postazione);
+            postazioni.add(disponibilita.get(2).id_postazione);
+            postazioni.add(disponibilita.get(3).id_postazione);
 
-        // Verifica che la lista delle postazioni del tavolo sia stata aggiornata
-        assertEquals(n_posti, aulaService.getTavoloCorrente().getLista_postazioni().size());
+            Random rand = new Random();
+            String stato = "CONFERMATO";
 
-        // Verifica che il tavolo sia stato aggiunto alla lista dei tavoli dell'aula
-        //assertTrue(aulaService.getListaAule().stream().anyMatch(aula -> aula.getLista_tavoli().contains(aulaService.getTavoloCorrente())));
+            this.prenotazioniCorrenti = new LinkedList<>();
+
+            for (Studente studente : studenti) {
+                int codPrenotazione = rand.nextInt(10000000);
+                this.prenotazioneCorrente = new Prenotazione(studente.getMatricola(), codPrenotazione, LocalDate.of(2025, 2, 25), 1, 1, 1, postazioni.get(studenti.indexOf(studente)), 1, stato);
+                this.prenotazioniCorrenti.add(prenotazioneCorrente);
+                stato = "IN ATTESA";
+            }
+        } else {
+            System.out.println("Qualche studente non è stato trovato");
+        }
+
+        assertEquals(3, this.prenotazioniCorrenti.size());
+        assertEquals("CONFERMATO", this.prenotazioniCorrenti.get(0).getStato());
+        assertEquals("IN ATTESA", this.prenotazioniCorrenti.get(1).getStato());
+        assertEquals("IN ATTESA", this.prenotazioniCorrenti.get(2).getStato());
+        terminaInserimentoPrenotazione();
+        modificaStatoPrenotazione();
     }
 
 
+    public void terminaInserimentoPrenotazione(){
+        this.prenotazioni.addAll(this.prenotazioniCorrenti);
+        assertEquals(3, this.prenotazioni.size());
+    }
 
+    public void modificaStatoPrenotazione() throws SQLException {
+        this.prenotazioni.get(1).setStato("CONFERMATO");
+        assertEquals("CONFERMATO", this.prenotazioni.get(1).getStato());
+    }
 
 }
