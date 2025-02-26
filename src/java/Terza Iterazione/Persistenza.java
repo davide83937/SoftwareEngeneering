@@ -262,4 +262,59 @@ public class Persistenza {
         System.out.println("Segnalazione modificata con successo! (" + rowsAffected + " riga/i inserita/e)");
     }
 
+    public void load_disponibilita_multipla(int aulaId, String data, int n_studenti, LinkedList<Disponibilita1> disponibilita, DatabaseConnection dbConnection) throws SQLException {
+        String query = null;
+        query = "WITH tavoli_disponibili AS (" +
+                "SELECT " +
+                "t.id AS tavolo_id, " +
+                "t.fkaula, " +
+                "t.numero_postazioni, " +
+                "tu.id AS turno_id, " +
+                "(t.numero_postazioni - COUNT(CASE WHEN pr.id IS NOT NULL THEN 1 END)) AS posti_liberi " +
+                "FROM tavolo1 t " +
+                "JOIN postazione1 p ON t.id = p.fktavolo AND t.fkaula = p.fkaula " +
+                "CROSS JOIN turno tu " +
+                "LEFT JOIN prenotazione2 pr " +
+                "ON p.id = pr.fkpostazione " +
+                "AND p.fktavolo = pr.fktavolo " +
+                "AND p.fkaula = pr.fkaula " +
+                "AND pr.data = ? " +
+                "AND pr.fkturno = tu.id " +
+                "WHERE t.fkaula = ? " +
+                "GROUP BY t.id, t.fkaula, t.numero_postazioni, tu.id " +
+                "HAVING posti_liberi >= ? " +
+                ") " +
+                "SELECT " +
+                "p.id AS postazione_id, " +
+                "p.fktavolo, " +
+                "p.fkaula, " +
+                "td.turno_id, " +
+                "tu.nome AS turno_nome, " +
+                "tu.orario_inizio, " +
+                "tu.orario_fine " +
+                "FROM postazione1 p " +
+                "JOIN tavoli_disponibili td ON p.fktavolo = td.tavolo_id AND p.fkaula = td.fkaula " +
+                "JOIN turno tu ON td.turno_id = tu.id " +
+                "LEFT JOIN prenotazione2 pr " +
+                "ON p.id = pr.fkpostazione " +
+                "AND p.fktavolo = pr.fktavolo " +
+                "AND p.fkaula = pr.fkaula " +
+                "AND pr.data = ? " +
+                "AND pr.fkturno = tu.id " +
+                "WHERE pr.id IS NULL;";
+
+        PreparedStatement stmt = dbConnection.conn.prepareStatement(query);
+        stmt.setDate(1, Date.valueOf(data));
+        stmt.setInt(2, aulaId);
+        stmt.setInt(3, n_studenti);
+        stmt.setDate(4, Date.valueOf(data));
+
+        ResultSet rs = stmt.executeQuery();
+        disponibilita = new LinkedList<>();
+        while (rs.next()){
+            Disponibilita1 d1 = new Disponibilita1(rs.getInt("postazione_id"), rs.getInt("fktavolo"), rs.getInt("turno_id"));
+            disponibilita.add(d1);
+        }
+    }
+
 }
