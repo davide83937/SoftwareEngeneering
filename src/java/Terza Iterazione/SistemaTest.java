@@ -1,3 +1,4 @@
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -18,6 +19,8 @@ public class SistemaTest {
     public Prenotazione prenotazioneCorrente = new Prenotazione(1, 1, LocalDate.of(2024, 11, 1), 1, 1,1,1,1, "");
     public LinkedList<Prenotazione> prenotazioniCorrenti = new LinkedList<>();
     public LinkedList<Prenotazione> prenotazioni = new LinkedList<>();
+    public LinkedList<Segnalazione> segnalaziones = new LinkedList<>();
+    public LinkedList<Blocco> lista_blocchi = new LinkedList<>();
 
 
     public void load_studenti(){
@@ -45,6 +48,13 @@ public class SistemaTest {
         this.disponibilita.add(d4);
         this.disponibilita.add(d5);
         this.disponibilita.add(d6);
+    }
+
+    public void load_segnalazioni() throws SQLException {
+        Segnalazione s1 = new Segnalazione(1, 1111, "URLA", "Impossibile studiare", "IN ATTESA");
+        Segnalazione s2 = new Segnalazione(2, 1112, "TRAPANO", "Il trapano fa troppo rumore", "IN ATTESA");
+        this.segnalaziones.add(s1);
+        this.segnalaziones.add(s2);
     }
 
 
@@ -142,6 +152,57 @@ public class SistemaTest {
     public void modificaStatoPrenotazione() throws SQLException {
         this.prenotazioni.get(1).setStato("CONFERMATO");
         assertEquals("CONFERMATO", this.prenotazioni.get(1).getStato());
+    }
+
+    @Test
+    public void  inserisci_segnalazione() throws SQLException {
+        this.load_segnalazioni();
+        Segnalazione s = new Segnalazione(3, 1111, "URLA", "Impossibile studiare", "IN ATTESA");
+        this.segnalaziones.add(s);
+        assertNotNull(this.segnalaziones.indexOf(s));
+    }
+
+    @Test
+    public void modifica_stato_segnalazione(){
+        for (Segnalazione s: this.segnalaziones){
+            if(s.getId_segnalazione() == 3){
+                s.setStato("PRESA IN CARICO");
+            }
+        }
+        for (Segnalazione s: this.segnalaziones){
+            if(s.getId_segnalazione() == 3){
+                assertEquals("PRESA IN CARICO", s.getStato());
+            }
+        }
+    }
+
+    @Test
+    public void inserisci_blocco(){
+        Blocco b = new Blocco(1, 1111, LocalDate.of(2025, 2, 28));
+        this.lista_blocchi.add(b);
+        for (Blocco b1: this.lista_blocchi){
+            if(b1.getId_blocco() == 1){
+                assertNotNull(b1);
+            }
+        }
+        test_prenotazione_fallita();
+    }
+
+
+    public void test_prenotazione_fallita(){
+        Prenotazione p = new Prenotazione(1111, 50, LocalDate.now(), 1, 22, 1, 1, 1, "CONFERMATO");
+        for (Blocco b: this.lista_blocchi){
+            if(b.getMatricola() == p.getId_stud_prenotato() && LocalDate.now().isAfter(b.getData_fine())){
+                this.prenotazioni.add(p);
+            }
+        }
+        Prenotazione prova = null;
+        for (Prenotazione p1: this.prenotazioni){
+            if(p1.getCodicePrenotazione() == 50){
+                prova = new Prenotazione(p1.getId_stud_prenotato(), p1.getCodicePrenotazione(), p1.getData(), p1.getMateria(), p1.getId_aula(), p1.getId_tavolo(), p1.getId_postazione(), p1.getTurno(), p1.getStato());
+            }
+        }
+        assertNull(prova);
     }
 
 
